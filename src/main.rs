@@ -43,10 +43,10 @@ fn main() {
     window.end();
     window.show();    
     
-    let mut dispwindow = Window::new(0, 0, 400, 300, "Input Data");
+    let mut dispwindow = Window::new(0, 0, 600, 300, "Input Data");
         dispwindow.set_color(Color::White);
 
-    let mut disp = TextDisplay::new(5,5,390,290,None);
+    let mut disp = TextDisplay::new(5,5,590,290,None);
 
     let mut buf = TextBuffer::default();
 
@@ -202,8 +202,8 @@ fn startListen(){
                 let placeholder = Duration::new(0, 0);
                 event_database.add_mouse_event(
                     MouseEvent{
-                        button: MouseButton::Left,
-                        modifier: Modifier::Press,
+                        button: MouseButton::Move,
+                        modifier: Modifier::Move,
                         event_time: placeholder,
                         event_coordinate: Coordinates { x, y }
                     }
