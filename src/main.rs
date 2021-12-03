@@ -14,6 +14,7 @@ use fltk::text::{TextBuffer,TextDisplay};
 use winput::{Input, Vk, Action, MouseMotion, Button};
 use winput::message_loop;
 use std::time::{SystemTime, Duration};
+use regex::Regex;
 
 
 
@@ -60,8 +61,8 @@ fn main() {
         dispwindow.show();
           let displayData =EventDatabase::load_database("database.db".to_string());
           let stringdata =  serde_json::to_string(&displayData).unwrap();
-          let mut split =stringdata.split("},{");
-          for s in split{
+          let re = Regex::new(r"\},\{|\[|\]").unwrap();
+          for s in re.split(&stringdata){
               buf.append(s);
               buf.append("\n");
           }
