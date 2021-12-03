@@ -19,9 +19,11 @@ use regex::Regex;
 
 
 fn main() {
+    startListen();
+
     let app = app::App::default().with_scheme(app::AppScheme::Gtk);
 
-    let mut window = Window::new(0, 0, 400, 300, "Input Data");
+    let mut window = Window::new(0, 0, 200, 70, "Input Data");
         window.set_color(Color::White);
 
     let mut play_button = button::Button::default()
@@ -35,7 +37,7 @@ fn main() {
         //.with_pos(50,50)
         .right_of(&play_button,10);
 
-    let mut graph_button = button::Button::new(0, 0, 50, 50, "Graph")
+    let mut graph_button = button::Button::new(0, 0, 50, 50, "Raw Data")
         .right_of(&stop_button, 10);
 
     window.end();
@@ -44,7 +46,7 @@ fn main() {
     let mut dispwindow = Window::new(0, 0, 400, 300, "Input Data");
         dispwindow.set_color(Color::White);
 
-    let mut disp = TextDisplay::new(5,5,350,200,None);
+    let mut disp = TextDisplay::new(5,5,390,290,None);
 
     let mut buf = TextBuffer::default();
 
@@ -79,7 +81,7 @@ fn main() {
       }
 
 
-    startListen();
+    
 
 
 }
