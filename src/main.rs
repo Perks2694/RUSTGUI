@@ -15,11 +15,19 @@ use winput::{Input, Vk, Action, MouseMotion, Button};
 use winput::message_loop;
 use std::time::{SystemTime, Duration};
 use regex::Regex;
+use std::future::Future;
+use tokio::task;
+use std::pin::Pin;
+use std::task::{Context, Poll};
 
 
 
-fn main() {
-    startListen();
+#[tokio::main]
+async fn main() {
+    
+
+    let mut go = true;
+    
 
     let app = app::App::default().with_scheme(app::AppScheme::Gtk);
 
@@ -28,7 +36,7 @@ fn main() {
 
     let mut play_button = button::Button::default()
         .with_size(50,50)
-        .with_label("Play")
+        .with_label("Start")
         .with_pos(10, 10);
 
     let mut stop_button = button::Button::default()
@@ -50,13 +58,34 @@ fn main() {
 
     let mut buf = TextBuffer::default();
 
+    
+
 
     disp.set_buffer(buf.clone());
 
     
 
-      //play_button.set_callback(move |_| stop_button.set_color(Color::Red));
-      play_button.clone().set_callback(move |_| play_button.set_label("Recording"));
+      stop_button.clone().set_callback(move |_| {
+          go = false;
+          stop_button.set_color(Color::Red)
+        }
+        );
+
+      play_button.clone().set_callback(move |_| {
+          go = true;
+
+          let handle = task::spawn(async {
+              println!("From thread spawned");
+              startListen();
+          });
+
+          
+          play_button.set_label("Recording");
+          play_button.set_color(Color::Green);
+         
+          
+        }
+    );
 
       graph_button.set_callback( move |b|{
         dispwindow.end();
@@ -68,21 +97,26 @@ fn main() {
               buf.append(s);
               buf.append("\n");
           }
-        //  dispwindow.end();
-      //    dispwindow.show();
-        //  dispwindow.make_current();
         
       }
 
       );
 
       app.run().unwrap();
-      while app.wait() {
-      }
+     
 
 
     
 
+
+}
+
+impl Future for EventDatabase{
+    type Output = EventDatabase;
+    
+    fn poll(self: Pin<&mut Self>, ctx: &mut Context) -> Poll<Self::Output>{
+        unimplemented!()
+    }
 
 }
 
@@ -94,6 +128,9 @@ fn startListen(){
     let mut mouse_holding = false;
     let mut key_holding = false;
     loop {
+      //  if go == false{
+     //       break;
+     //   }
         match receiver.next_event() {
             message_loop::Event::Keyboard {
                 vk,
@@ -101,6 +138,8 @@ fn startListen(){
                 ..
             } => {
                 if vk == Vk::Escape {
+                    message_loop::stop();
+                    drop(receiver);
                     break;
                 } else {key_holding = false;
                     //Testing time
@@ -128,6 +167,8 @@ fn startListen(){
                 ..
             } => {
                 if vk == Vk::Escape {
+                    message_loop::stop();
+                    drop(receiver);
                     break;
                 } else {
                     if key_holding == false {
@@ -168,14 +209,13 @@ fn startListen(){
                     event_coordinate: Coordinates { x: 0.0, y: 0.0 }
                 }
             );
-                println!("{:?} was clicked", button);
             },
 
             message_loop::Event::MouseButton{
                 button,
                 action: Action::Release,
             } => {mouse_holding = false;
-                println!("{:?} was clicked", button);
+                println!("{:?} was released", button);
 
                 //Testing time
                 let new_time = SystemTime::now();
@@ -191,7 +231,6 @@ fn startListen(){
                         event_coordinate: Coordinates { x: 0.0, y: 0.0 }
                     }
                 );
-                println!("{:?} was released! Time was", button);
             },
             message_loop::Event::MouseMoveAbsolute{
                 x,
@@ -215,4 +254,5 @@ fn startListen(){
         }
         event_database.save_database("database.db".to_string());
     }
+    
 }//```
