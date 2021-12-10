@@ -21,10 +21,11 @@ use std::pin::Pin;
 use std::task::{Context, Poll};
 
 
-
 #[tokio::main]
 async fn main() {
-    
+    /* Chris PerkinsYan start ->*/
+
+    /* This Portion of the Applcation initializes the application and runs the GUI */
 
     let mut go = true;
     
@@ -108,10 +109,10 @@ async fn main() {
 
     
 
-
+/* -> Chris PerkinsYan END */
 }
 
-impl Future for EventDatabase{
+impl Future for EventDatabase{ // Unused written by Chris Perkins Yan
     type Output = EventDatabase;
     
     fn poll(self: Pin<&mut Self>, ctx: &mut Context) -> Poll<Self::Output>{
