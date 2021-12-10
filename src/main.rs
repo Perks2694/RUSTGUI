@@ -122,11 +122,17 @@ impl Future for EventDatabase{
 
 fn startListen(){
     let mut event_database = EventDatabase::load_database("database.db".to_string());
+    
     let receiver = message_loop::start().unwrap();
+    //Time had to be taken from each individual keystrokes and mouse clicks. For this SystemTime was the best course of action. Since the main loop is in charge
+    //of capturing a single event such as keydown or keyups to capture the holding of a key I had to take the SystemTime of a keydown and a keyup everytime a user
+    //inputs them. With that information I could take the difference between the keydown and the keyups and get the time a key was held down for. @author: Hector Salas
+    //Time global variables 
     let mut start_time_key = SystemTime::now();
     let mut start_time_mouse = SystemTime::now();
     let mut mouse_holding = false;
     let mut key_holding = false;
+    
     loop {
       //  if go == false{
      //       break;
@@ -142,12 +148,14 @@ fn startListen(){
                     drop(receiver);
                     break;
                 } else {key_holding = false;
-                    //Testing time
+                    //new_time will take the time of release and get the difference since start_time_key which was defined when a key was pressed
+                    //the difference is then the time the key was held down for. @author: Hector Salas
                     let new_time = SystemTime::now();
                     let difference = new_time.duration_since(start_time_key)
                     .expect("Clock may have gone backwards");
                     println!("Time was {:?}",difference);
 
+                    //Sends data to database.
                     event_database.add_keyboard_event(
                         KeyboardEvent{
                             key: Key::from(vk),
@@ -171,12 +179,15 @@ fn startListen(){
                     drop(receiver);
                     break;
                 } else {
+                    //Once user presses a key the if statement will check if its being key_holding is true. This will always return false on every new keystroke
+                    //the start_time_key will get updated with the exact time a key was pressed. @author: Hector Salas
                     if key_holding == false {
                         start_time_key = SystemTime::now();
                     }
                     key_holding = true;
-
                     let placeholder = Duration::new(0, 0);
+                    
+                    //Sends data to database.
                     event_database.add_keyboard_event(
                         KeyboardEvent{
                             // key: Key::new(vk),
@@ -193,6 +204,7 @@ fn startListen(){
                 button,
                 action: Action::Press,
             } => {
+                //Same method was used to calculate the time interval between mouse clicks. @author: Hector Salas
                 if mouse_holding == false {
                 start_time_mouse = SystemTime::now();
             }
@@ -201,6 +213,7 @@ fn startListen(){
 
             let placeholder = Duration::new(0, 0);
             
+            //Sends data to database.
             event_database.add_mouse_event(
                 MouseEvent{
                     button: MouseButton::new(button),
@@ -223,6 +236,7 @@ fn startListen(){
                 .expect("Clock may have gone backwards");
                 println!("Time was {:?}",difference);
 
+                //Sends data to database.
                 event_database.add_mouse_event(
                     MouseEvent{
                         button: MouseButton::new(button),
@@ -239,6 +253,8 @@ fn startListen(){
             } => {
 
                 let placeholder = Duration::new(0, 0);
+                
+                //Sends data to database.
                 event_database.add_mouse_event(
                     MouseEvent{
                         button: MouseButton::Move,
