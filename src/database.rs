@@ -9,8 +9,11 @@ use winput::{Vk, Button};
 use std::convert::From;
 
 
-// only left and right mouse buttons have been covered
-// but you can add as many buttons as you wish
+/*Cetin Karaca - In this part I implemented our mouse
+buttons. If Left or Right clicks are made the, the database file
+reads it as "Left" or "Right". If there are other buttons on your mouse
+it will be displayed as "Other" on the database.
+*/
 #[derive(Serialize, Deserialize, Debug)]
 pub enum MouseButton { Left, Right , Other, Move}
 impl MouseButton{
@@ -22,13 +25,15 @@ impl MouseButton{
         }
     }
 }
-// only press and release modifiers have been covered
-// but you can add as many as you wish
+/* Cetin Karaca - In this part, modifiers such as
+Press, Release and move have been covered.
+*/
 #[derive(Serialize, Deserialize, Debug)]
 pub enum Modifier{Press, Release, Move}
 
-// only arrow keys have been covered
-// but you can add as many as you wish
+/* Cetin Karaca - In this section, the database reads and displays the 
+arrow presses on the keyboard. Then, all the keys including US-National as well
+as some extra other foreign keys were added to the database manually below.
 #[derive(Serialize, Deserialize, Debug)]
 // pub enum Key{LeftArrow, RightArrow, UpArrow, DownArrow, Other}
 #[derive(FromPrimitive)]
@@ -626,7 +631,9 @@ pub enum Key {
     OemClear = 0xfe,
 }
 
-
+/* Cetin Karaca - Here I made the final initalization to send all the keys into
+database.
+*/
 impl From<Vk> for Key {
     #[inline(always)]
     fn from(vk: Vk) -> Self {
@@ -635,13 +642,15 @@ impl From<Vk> for Key {
     }
 }
 
-
+/* Cetin Karaca - The cursor coordinates has been sent to the database below. */
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Coordinates{
     pub x: f32,
     pub y: f32
 }
 
+/* Cetin Karaca - Below I created structs for the Mouse Buttons, modifiers, time interval
+and mouse coordinates. Just so they can be read by he database. */
 #[derive(Serialize, Deserialize, Debug)]
 pub struct MouseEvent{
  
@@ -649,7 +658,8 @@ pub struct MouseEvent{
     pub(crate) modifier: Modifier,
     pub(crate) event_time: Duration,
     pub(crate) event_coordinate: Coordinates, }
-
+/* Cetin Karaca - Below I created the structs for Key. modifiers and Duration to be 
+read by the database file. */
 #[derive(Serialize, Deserialize, Debug)]
 pub struct KeyboardEvent{
 
@@ -657,14 +667,16 @@ pub struct KeyboardEvent{
     pub(crate) modifier: Modifier,
     pub(crate) event_time: Duration, }
 
+/* Cetin Karaca - Here I created the actual database that keeps track 
+of events with their time and other details. */
 #[derive(Serialize, Deserialize, Debug)]
 pub struct EventDatabase{
-    // the actual database that keeps track of events with their time and other details
     pub(crate) mouse_database: Vec<MouseEvent>,
     pub(crate) key_database: Vec<KeyboardEvent>
 }
 
-
+/* Cetin Karaca - Below I am making the addition of the mouse event and
+keyboard event to the database. */
 impl EventDatabase {
     pub fn new() -> Self {
         EventDatabase{
@@ -682,14 +694,15 @@ impl EventDatabase {
         self.key_database.push(event);
     }
 
-    //saves the data to a file,
+    //Cetin Karaca - The function below saves the data to a file.
     pub fn save_database(&self, filename: String){
         let serialized = serde_json::to_string(&self).unwrap();
         let mut file = File::create(filename).unwrap();
         file.write_all(serialized.as_bytes()).unwrap();
     }
 
-    // used to create EventDatabase from file
+    /* Cetin Karaca - I implemented the function below to create 
+    EventDatabase from file.*/ 
     pub fn load_database(filename: String) -> Self{
         let mut file_result = File::open(filename);
         match file_result {
@@ -707,7 +720,8 @@ impl EventDatabase {
 
     }
 
-    // auto saves database to file when the program ends
+    /* Cetin Karaca - This function auto saves database to file 
+    when the program ends.*/
     pub fn drop(&mut self) {
         self.save_database("database".to_string());
     }
